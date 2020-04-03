@@ -1,0 +1,382 @@
+// testTextbuffer.c
+// A stub file for you to test your textbuffer implementation.
+// Note that you will NOT be submitting this - this is simply for you to
+// test  your  functions as you go. We will have our own testTexbuffer.c
+// for testing your submission.
+
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "textbuffer.h"
+
+static void testNewTB(void);
+static void testAddPrefix(void);
+static void testMergeTB(void);
+static void testPasteTB(void); 
+static void testCutTB(void); 
+static void testDeleteTB(void);
+static void testSearchTB(void);
+static void testFormRichText(void);
+
+int main(void) {
+	
+	testNewTB();
+	testAddPrefix();
+	testMergeTB();
+	testPasteTB(); 
+	testCutTB();
+	testDeleteTB();
+	testSearchTB();
+	testFormRichText();
+	// TODO: Call more test functions
+	
+	
+	printf("All tests passed! You are awesome!\n");
+}
+
+static void testNewTB(void) {
+	printf("-----------------------------------------\n"
+	       "               newTB tests               \n"
+	       "-----------------------------------------\n");
+	
+	// Calling dumpTB immediately after newTB, without modifying the TB
+	TB tb1 = newTB("hello there,\nhow\nare\nthings\n");
+	printf("--- tb1 input ---\n hello there,\nhow\nare\nthings\n");
+	printf("...... test1 ......\n");
+	assert(linesTB(tb1) == 4);
+	printf("--- check linesTB(tb1): %d ---\n", linesTB(tb1));
+	
+	char *text1 = dumpTB(tb1, false); // Don't show line numbers
+	printf("------ dumpTB(tb1, false): ------- \n"); //so free it after
+	printf("%s", text1);
+	
+	assert(strcmp("hello there,\nhow\nare\nthings\n", text1) == 0);
+	
+	
+	char *text2 = dumpTB(tb1, true); // show line numbers
+	printf("------ dumpTB(tb1, true): ------- \n"); //so free it after
+	printf("%s", text2);
+	
+	
+	free(text1);
+	free(text2);
+	
+	releaseTB(tb1);
+	
+
+	
+	printf("newTB tests passed!\n");
+}
+
+// TODO: Add more test functions here
+
+static void testAddPrefix(void) {
+    
+    printf("-----------------------------------------\n"
+	       "               addPrefix tests               \n"
+	       "-----------------------------------------\n");
+	
+	TB tb1 = newTB("hello there,\nhow\nare\nthings\n");  
+	 
+	TB tb2 = newTB("keep\non\ntesting\n");
+	
+	TB tb3 = newTB("line1\nline2\nline3\nline4\nline5\nline6\nline7\n");
+	
+	assert(linesTB(tb1) == 4);
+	
+	printf("--- After addPrefixTB (tb1, 1, 3, good morning )---\n");
+	addPrefixTB (tb1, 1, 3, "good morning ");
+	
+	char *text1 = dumpTB(tb1, true); 
+	printf("------ dumpTB(tb1, true): ------\n%s", text1); //so free it after 
+	free(text1);
+	releaseTB(tb1);
+	
+	printf("--- After addPrefixTB (tb2, 2, 3, please )---\n");
+	addPrefixTB (tb2, 2, 3, "please ");
+	char *text2 = dumpTB(tb2, true);
+	printf("--- dumpTB(tb2, true): ---\n%s", text2); //so free it after 
+	free(text2);
+	releaseTB(tb2);
+	
+	printf("--- After addPrefixTB (tb2, 2, 5, this is )---\n");
+	addPrefixTB (tb3, 2, 5, "please ");
+	char *text3 = dumpTB(tb3, true);
+	printf("--- dumpTB(tb3, true): ---\n%s", text3); //so free it after 
+	free(text3);
+	releaseTB(tb3);
+	
+	
+	printf("addPrefix tests passed!\n");
+	
+}
+
+
+static void testMergeTB(void) {
+    
+    printf("-----------------------------------------\n"
+	       "               mergeTB tests               \n"
+	       "-----------------------------------------\n");
+	
+	TB tb1 = newTB("hello there,\nhow\nare\nthings\n");   
+	TB tb2 = newTB("it's\na\ngood\nday\n");   
+	//printf("--- before mergeTB ---\n");
+	printf("......test0......\n");
+	char *text0 = dumpTB(tb1, true);
+	char *text00 = dumpTB(tb2, true);
+	printf("--- dumpTB(): tb1 ---\n%s", text0);
+	printf("--- dumpTB(): tb2 ---\n%s", text00);
+	free(text0);
+	free(text00);
+
+	
+	printf("......test1......\n");
+	printf("......pos == 5......\n");
+	printf("--- after mergeTB ---\n");
+	
+	mergeTB(tb1, 5, tb2);
+	char *text1 = dumpTB(tb1, true); 
+	printf("--- dumpTB(): tb1 ---\n%s", text1);
+	free(text1);
+	releaseTB(tb1);
+	
+	
+	TB tb3 = newTB("hello there,\nhow\nare\nthings\n");   
+	TB tb4 = newTB("it's\na\ngood\nday\n");
+	
+	printf("......test2......\n");
+	printf("......pos == 1......\n");
+	printf("--- after mergeTB ---\n");
+	mergeTB(tb3, 1, tb4);
+	char *text2 = dumpTB(tb3, true); 
+	printf("--- dumpTB(): tb3 ---\n%s", text2);
+	free(text2);
+	releaseTB(tb3);
+	
+	
+	
+	
+	TB tb5 = newTB("hello there,\nhow\nare\nthings\n");   
+	TB tb6 = newTB("it's\na\ngood\nday\n");
+	
+	printf("......test3......\n");
+	printf("......pos == 2......\n");
+	printf("--- after mergeTB ---\n");
+	mergeTB(tb5, 2, tb6);
+	char *text3 = dumpTB(tb5, true); 
+	printf("--- dumpTB(): tb5 ---\n%s", text3);
+	
+	free(text3);
+	releaseTB(tb5);
+	
+	
+
+	printf("mergeTB tests passed!\n");
+}
+
+
+
+static void testPasteTB(void) {
+    
+    printf("-----------------------------------------\n"
+	       "               pasteTB tests               \n"
+	       "-----------------------------------------\n");
+	
+	TB tb1 = newTB("hello there,\nhow\nare\nthings\n");   
+	TB tb2 = newTB("it's\na\ngood\nday\n");   
+	
+	
+	
+	printf("......test1......\n");
+	printf("......pos == 4......\n");
+	printf("--- after pasteTB ---\n");
+	
+	
+	pasteTB(tb1, 4, tb2);
+	char *text1 = dumpTB(tb1, true); 
+	char *text2 = dumpTB(tb2, true);
+	printf("--- check linesTB(tb1): %d ---\n", linesTB(tb1));
+	printf("--- dumpTB(): tb1 ---\n%s", text1);
+	printf("--- check linesTB(tb2): %d ---\n", linesTB(tb2));
+	printf("--- dumpTB(): tb2 ---\n%s", text2);
+	free(text1);
+	free(text2);
+	releaseTB(tb1);
+	releaseTB(tb2);
+	
+	
+	TB tb3 = newTB("hello there,\nhow\nare\nthings\n");   
+	TB tb4 = newTB("it's\na\ngood\nday\n");
+	
+	printf("......test2......\n");
+	printf("......pos == 1......\n");
+	printf("--- after pasteTB ---\n");
+	pasteTB(tb3, 1, tb4);
+	char *text3 = dumpTB(tb3, true); 
+	char *text4 = dumpTB(tb4, true);
+	
+	printf("--- dumpTB(): tb3 ---\n%s", text3);
+	
+	printf("--- dumpTB(): tb4 ---\n%s", text4);
+	free(text3);
+	free(text4);
+	releaseTB(tb3);
+	releaseTB(tb4);
+	
+	TB tb5 = newTB("hello there,\nhow\nare\nthings\n");   
+	TB tb6 = newTB("it's\na\ngood\nday\n");
+	
+	printf("......test2......\n");
+	printf("......pos == 5......\n");
+	printf("--- after pasteTB ---\n");
+	pasteTB(tb5, 5, tb6);
+	char *text5 = dumpTB(tb5, true); 
+	char *text6 = dumpTB(tb6, true);
+	
+	printf("--- dumpTB(): tb5 ---\n%s", text5);
+	
+	printf("--- dumpTB(): tb6 ---\n%s", text6);
+	
+	free(text5);
+	free(text6);
+	releaseTB(tb5);
+	releaseTB(tb6);
+	
+	
+	printf("pasteTB tests passed!\n");
+}
+
+
+
+static void testCutTB(void) {
+    
+    printf("-----------------------------------------\n"
+	       "               cutTB tests               \n"
+	       "-----------------------------------------\n");
+	
+	TB tb1 = newTB("hello there,\nhow\nare\nthings\n");   
+	
+	char *text1 = dumpTB(tb1, true); 
+	
+	printf("--- dumpTB(): tb1 ---\n%s", text1);
+	printf("--- lineTB(tb1) ---\n %d \n", linesTB(tb1));
+	
+	
+	printf("---after cutTB(tb1, 1, 2)---\n");
+	TB cut1 = cutTB(tb1, 1, 2);
+	
+	char *text2 = dumpTB(tb1, true);
+	printf("--- dumpTB(): tb1 ---\n%s", text2);
+	
+	
+	char *cut1_text = dumpTB(cut1, true);
+	printf("--- dumpTB(): cut1 ---\n%s", cut1_text);
+	
+	printf("--- lineTB(tb1) ---\n %d \n", linesTB(tb1));
+	printf("--- lineTB(cut1) ---\n %d \n", linesTB(cut1));
+	
+	
+	free(text1);
+	free(text2);
+	free(cut1_text);   
+	
+	releaseTB(tb1);
+	releaseTB(cut1);
+	
+	printf("cutTB tests passed!\n");
+	  
+	
+}
+
+static void testDeleteTB(void) {
+
+    printf("-----------------------------------------\n"
+	       "               deleteTB tests               \n"
+	       "-----------------------------------------\n");
+	       
+	TB tb1 = newTB("hello there,\nhow\nare\nthings\n"); 
+	//Tb tb2 = newTB("line1\nline2\nline3\nline4\nline5\nline6\nline7\n");
+	printf("......test1......\n");
+	
+	deleteTB(tb1, 1, 3);
+	printf("......after deleteTB(tb1, 1, 3)......\n");
+	
+	char *text1 = dumpTB(tb1, true); 
+	printf("--- dumpTB(tb1, true)---\n%s", text1);
+	printf("---linesTB(tb1): %d\n", linesTB(tb1));
+	releaseTB(tb1);
+	free(text1);
+	
+	
+	printf("deleteTB tests passed!\n"); 
+}
+
+static void testSearchTB(void) {
+
+    printf("-----------------------------------------\n"
+	       "               searchTB tests               \n"
+	       "-----------------------------------------\n");
+	       
+	       
+	TB tb1 = newTB("Hello World My\nname is jarred lovegood\nand i love carley ray jepson\n");
+	Match list = searchTB(tb1, "love");
+	
+	Match temp = list; 
+	Match node_to_free = NULL;
+	//print out match list 
+	while (temp != NULL) {
+	    printf("lineNumber: %d\n", temp->lineNumber);
+	    printf("columnNumber: %d\n\n", temp->columnNumber);
+	    node_to_free = temp; 
+	    
+	    temp = temp->next; 
+	    
+	    free(node_to_free); 
+	}
+	
+	
+	releaseTB(tb1);
+	printf("searchTB tests passed!\n");
+	
+    
+}
+
+static void testFormRichText(void){
+    
+   printf("-----------------------------------------\n"
+	      "               formRichText tests               \n"
+	      "-----------------------------------------\n");
+    
+    TB tb1 = newTB("#line1\nabc*def*ghi\n#line3_so_hard\nline4\nline5\nline6\nline7\n");
+    TB tb2 = newTB("#this is a little\n*this should be bold*\n_this should be italic_\n");
+    
+    char *text1 = dumpTB(tb1, true);
+    printf("---dumpTB(tb1, true)---\n%s\n", text1);
+    
+    
+    formRichText(tb1);
+    printf("......after formRichText(tb1)......\n");
+    
+    char *text2 = dumpTB(tb1, true);
+    printf("---dumpTB(tb1, true)---\n%s\n", text2);
+    
+    
+    char *text3 = dumpTB(tb2, true);
+    printf("---dumpTB(tb2, true)---\n%s\n", text3);
+    formRichText(tb2);
+    printf("......after formRichText(tb2)......\n");
+    char *text4 = dumpTB(tb2, true);
+    printf("---dumpTB(tb1, true)---\n%s\n", text4);
+    
+    
+    
+    releaseTB(tb1);
+    releaseTB(tb2);
+    free(text1);
+    free(text2);
+    free(text3);
+    free(text4); 
+}
